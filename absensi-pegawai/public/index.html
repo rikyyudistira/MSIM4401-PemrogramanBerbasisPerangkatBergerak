@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4F46E5">
+  <title>Absensi Pegawai</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      margin-bottom: 20px;
+    }
+
+    h1, h2 {
+      color: #4F46E5;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #374151;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #E5E7EB;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #4F46E5;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #6B7280;
+      color: white;
+      margin-top: 10px;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .info-box {
+      background: #F3F4F6;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #E5E7EB;
+    }
+
+    .info-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .info-label {
+      color: #6B7280;
+      font-weight: 600;
+    }
+
+    .info-value {
+      color: #1F2937;
+      font-weight: 700;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .status-success {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .status-warning {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    .alert-success {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .alert-error {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    #video, #canvas {
+      width: 100%;
+      display: block;
+    }
+
+    #canvas {
+      display: none;
+    }
+
+    .camera-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 200px;
+      border: 3px solid white;
+      border-radius: 50%;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #6B7280;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #4F46E5;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .location-info {
+      font-size: 14px;
+      color: #6B7280;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Login Page -->
+    <div id="loginPage" class="card">
+      <h1>🏢 Absensi Pegawai</h1>
+      <div id="loginAlert"></div>
+      <div class="input-group">
+        <label>NIP</label>
+        <input type="text" id="nip" placeholder="Masukkan NIP">
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Masukkan Password">
+      </div>
+      <button class="btn btn-primary" onclick="login()">Login</button>
+    </div>
+
+    <!-- Absensi Page -->
+    <div id="absensiPage" class="hidden">
+      <div class="card">
+        <h2>Halo, <span id="userName"></span>!</h2>
+        <div class="info-box">
+          <div class="info-item">
+            <span class="info-label">Divisi</span>
+            <span class="info-value" id="userDivisi"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Tanggal</span>
+            <span class="info-value" id="currentDate"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Waktu</span>
+            <span class="info-value" id="currentTime"></span>
+          </div>
+        </div>
+
+        <div id="absensiAlert"></div>
+
+        <!-- Status Absensi -->
+        <div id="statusAbsensi" class="hidden">
+          <div class="info-box">
+            <div class="info-item">
+              <span class="info-label">Jam Masuk</span>
+              <span class="info-value" id="jamMasuk"></span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Jam Keluar</span>
+              <span class="info-value" id="jamKeluar"></span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Status</span>
+              <span id="statusBadge"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Camera Section -->
+        <div id="cameraSection" class="hidden">
+          <div class="video-container">
+            <video id="video" autoplay playsinline></video>
+            <div class="camera-overlay"></div>
+            <canvas id="canvas"></canvas>
+          </div>
+          <button class="btn btn-success" onclick="ambilFoto()" id="btnAmbilFoto">Ambil Foto & Absen</button>
+          <button class="btn btn-secondary" onclick="tutupKamera()">Batal</button>
+        </div>
+
+        <!-- Tombol Absen -->
+        <div id="btnAbsensi">
+          <button class="btn btn-success" onclick="bukaKamera('masuk')" id="btnMasuk">
+            📍 Absen Masuk
+          </button>
+          <button class="btn btn-danger" onclick="bukaKamera('keluar')" id="btnKeluar" disabled>
+            📍 Absen Keluar
+          </button>
+        </div>
+
+        <div class="location-info" id="locationInfo"></div>
+
+        <button class="btn btn-secondary" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+    let currentUser = null;
+    let stream = null;
+    let jenisAbsen = null;
+    let currentLocation = null;
+
+    // Cek session
+    window.onload = () => {
+      const savedUser = localStorage.getItem('currentUser');
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        showAbsensiPage();
+      }
+    };
+
+    // Update waktu
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById('currentDate')?.textContent = 
+        now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      document.getElementById('currentTime')?.textContent = 
+        now.toLocaleTimeString('id-ID');
+    }, 1000);
+
+    async function login() {
+      const nip = document.getElementById('nip').value;
+      const password = document.getElementById('password').value;
+
+      if (!nip || !password) {
+        showAlert('loginAlert', 'Mohon isi NIP dan Password', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nip, password })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          currentUser = result.data;
+          localStorage.setItem('currentUser', JSON.stringify(currentUser));
+          showAbsensiPage();
+        } else {
+          showAlert('loginAlert', result.message, 'error');
+        }
+      } catch (error) {
+        showAlert('loginAlert', 'Gagal terhubung ke server', 'error');
+      }
+    }
+
+    async function showAbsensiPage() {
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('absensiPage').classList.remove('hidden');
+      document.getElementById('userName').textContent = currentUser.nama;
+      document.getElementById('userDivisi').textContent = currentUser.divisi;
+
+      await cekStatusAbsen();
+      await getLocation();
+    }
+
+    async function cekStatusAbsen() {
+      try {
+        const response = await fetch(`${API_URL}/absen/status/${currentUser.id}`);
+        const result = await response.json();
+
+        if (result.data) {
+          document.getElementById('statusAbsensi').classList.remove('hidden');
+          document.getElementById('jamMasuk').textContent = result.data.jamMasuk;
+          document.getElementById('jamKeluar').textContent = result.data.jamKeluar || '-';
+          
+          const badge = document.getElementById('statusBadge');
+          badge.className = `status-badge ${result.data.status === 'Tepat Waktu' ? 'status-success' : 'status-warning'}`;
+          badge.textContent = result.data.status;
+
+          document.getElementById('btnMasuk').disabled = true;
+          document.getElementById('btnKeluar').disabled = result.data.jamKeluar !== null;
+        }
+      } catch (error) {
+        console.error('Gagal cek status:', error);
+      }
+    }
+
+    async function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            currentLocation = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            document.getElementById('locationInfo').textContent = 
+              `📍 Lokasi: ${currentLocation.lat.toFixed(6)}, ${currentLocation.lng.toFixed(6)}`;
+          },
+          (error) => {
+            showAlert('absensiAlert', 'Gagal mendapatkan lokasi. Aktifkan GPS Anda.', 'error');
+          }
+        );
+      } else {
+        showAlert('absensiAlert', 'Browser tidak mendukung geolocation', 'error');
+      }
+    }
+
+    async function bukaKamera(jenis) {
+      if (!currentLocation) {
+        showAlert('absensiAlert', 'Menunggu lokasi GPS...', 'error');
+        return;
+      }
+
+      jenisAbsen = jenis;
+      document.getElementById('btnAbsensi').classList.add('hidden');
+      document.getElementById('cameraSection').classList.remove('hidden');
+
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'user' } 
+        });
+        document.getElementById('video').srcObject = stream;
+      } catch (error) {
+        showAlert('absensiAlert', 'Gagal mengakses kamera', 'error');
+        tutupKamera();
+      }
+    }
+
+    function tutupKamera() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+      document.getElementById('cameraSection').classList.add('hidden');
+      document.getElementById('btnAbsensi').classList.remove('hidden');
+    }
+
+    async function ambilFoto() {
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      const context = canvas.getContext('2d');
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0);
+
+      const foto = canvas.toDataURL('image/jpeg', 0.8);
+      tutupKamera();
+
+      await kirimAbsen(foto);
+    }
+
+    async function kirimAbsen(foto) {
+      const endpoint = jenisAbsen === 'masuk' ? 'masuk' : 'keluar';
+      
+      try {
+        const response = await fetch(`${API_URL}/absen/${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            pegawaiId: currentUser.id,
+            lat: currentLocation.lat,
+            lng: currentLocation.lng,
+            foto: foto
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showAlert('absensiAlert', result.message, 'success');
+          await cekStatusAbsen();
+        } else {
+          showAlert('absensiAlert', result.message, 'error');
+        }
+      } catch (error) {
+        showAlert('absensiAlert', 'Gagal mengirim absen', 'error');
+      }
+    }
+
+    function showAlert(elementId, message, type) {
+      const alertDiv = document.getElementById(elementId);
+      alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+      setTimeout(() => {
+        alertDiv.innerHTML = '';
+      }, 5000);
+    }
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      currentUser = null;
+      document.getElementById('absensiPage').classList.add('hidden');
+      document.getElementById('loginPage').classList.remove('hidden');
+      document.getElementById('nip').value = '';
+      document.getElementById('password').value = '';
+    }
+
+    // Service Worker untuk PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed'));
+    }
+  </script>
+</body>
+</html>

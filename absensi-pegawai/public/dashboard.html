@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Absensi</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #F3F4F6;
+      padding: 20px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      margin-bottom: 10px;
+    }
+
+    .header-info {
+      display: flex;
+      gap: 30px;
+      margin-top: 15px;
+    }
+
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    }
+
+    .stat-icon {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .stat-label {
+      color: #6B7280;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    input[type="date"] {
+      padding: 8px 12px;
+      border: 2px solid #E5E7EB;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #F9FAFB;
+    }
+
+    th {
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      color: #374151;
+      border-bottom: 2px solid #E5E7EB;
+    }
+
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #F3F4F6;
+    }
+
+    tr:hover {
+      background: #F9FAFB;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .status-success {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .status-warning {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .status-danger {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .foto-thumb {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .foto-thumb:hover {
+      transform: scale(1.5);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #9CA3AF;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow: auto;
+    }
+
+    .modal-image {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .modal-close {
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #6B7280;
+    }
+
+    .modal-close:hover {
+      color: #1F2937;
+    }
+
+    @media (max-width: 768px) {
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        font-size: 14px;
+      }
+
+      th, td {
+        padding: 10px;
+      }
+
+      .header-info {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📊 Dashboard Absensi Pegawai</h1>
+    <div class="header-info">
+      <div>📅 <span id="currentDate"></span></div>
+      <div>🕐 <span id="currentTime"></span></div>
+    </div>
+  </div>
+
+  <div class="stats-container">
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-label">Total Pegawai</div>
+      <div class="stat-value" id="totalPegawai">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-label">Hadir Hari Ini</div>
+      <div class="stat-value" id="hadirHariIni">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-label">Tepat Waktu</div>
+      <div class="stat-value" id="tepatWaktu">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⏰</div>
+      <div class="stat-label">Terlambat</div>
+      <div class="stat-value" id="terlambat">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">❌</div>
+      <div class="stat-label">Belum Absen</div>
+      <div class="stat-value" id="belumAbsen">-</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Data Absensi</h2>
+      <div class="filter-group">
+        <input type="date" id="filterTanggal">
+        <button class="btn btn-primary" onclick="filterData()">Filter</button>
+        <button class="btn btn-primary" onclick="resetFilter()">Reset</button>
+      </div>
+    </div>
+
+    <div id="loadingTable" class="loading">
+      <div class="spinner"></div>
+      <p>Memuat data...</p>
+    </div>
+
+    <div id="tableContainer" style="display: none;">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Nama</th>
+            <th>Divisi</th>
+            <th>Tanggal</th>
+            <th>Jam Masuk</th>
+            <th>Jam Keluar</th>
+            <th>Status</th>
+            <th>Foto</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+    </div>
+
+    <div id="emptyState" class="empty-state" style="display: none;">
+      <div class="empty-state-icon">📭</div>
+      <p>Belum ada data absensi</p>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="fotoModal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <h3 id="modalTitle"></h3>
+      <img id="modalImage" class="modal-image" src="" alt="Foto">
+      <div id="modalInfo"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+    let allData = [];
+
+    // Update waktu real-time
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById('currentDate').textContent = 
+        now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      document.getElementById('currentTime').textContent = 
+        now.toLocaleTimeString('id-ID');
+    }, 1000);
+
+    // Set tanggal hari ini di filter
+    document.getElementById('filterTanggal').valueAsDate = new Date();
+
+    // Load data saat halaman dibuka
+    window.onload = () => {
+      loadStatistik();
+      loadAbsensi();
+      // Auto refresh setiap 30 detik
+      setInterval(() => {
+        loadStatistik();
+        loadAbsensi();
+      }, 30000);
+    };
+
+    async function loadStatistik() {
+      try {
+        const response = await fetch(`${API_URL}/dashboard/statistik`);
+        const result = await response.json();
+
+        if (result.success) {
+          const stats = result.data;
+          document.getElementById('totalPegawai').textContent = stats.totalPegawai;
+          document.getElementById('hadirHariIni').textContent = stats.hadirHariIni;
+          document.getElementById('tepatWaktu').textContent = stats.tepatWaktu;
+          document.getElementById('terlambat').textContent = stats.terlambat;
+          document.getElementById('belumAbsen').textContent = stats.belumAbsen;
+        }
+      } catch (error) {
+        console.error('Gagal load statistik:', error);
+      }
+    }
+
+    async function loadAbsensi(tanggal = null) {
+      document.getElementById('loadingTable').style.display = 'block';
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'none';
+
+      try {
+        let url = `${API_URL}/dashboard/absensi`;
+        if (tanggal) {
+          url += `?tanggal=${tanggal}`;
+        }
+
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (result.success) {
+          allData = result.data;
+          renderTable(allData);
+        }
+      } catch (error) {
+        console.error('Gagal load absensi:', error);
+        document.getElementById('loadingTable').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'block';
+      }
+    }
+
+    function renderTable(data) {
+      document.getElementById('loadingTable').style.display = 'none';
+
+      if (data.length === 0) {
+        document.getElementById('emptyState').style.display = 'block';
+        document.getElementById('tableContainer').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('tableContainer').style.display = 'block';
+      document.getElementById('emptyState').style.display = 'none';
+
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      data.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td><strong>${item.nama}</strong></td>
+          <td>${item.divisi}</td>
+          <td>${new Date(item.tanggal).toLocaleDateString('id-ID')}</td>
+          <td>${item.jamMasuk}</td>
+          <td>${item.jamKeluar || '-'}</td>
+          <td>
+            <span class="status-badge ${item.status === 'Tepat Waktu' ? 'status-success' : 'status-warning'}">
+              ${item.status}
+            </span>
+          </td>
+          <td>
+            ${item.fotoMasuk ? `<img src="${item.fotoMasuk}" class="foto-thumb" onclick="showFoto('${item.nama}', '${item.fotoMasuk}', 'Masuk', '${item.jamMasuk}', '${item.tanggal}')" title="Klik untuk memperbesar">` : '-'}
+            ${item.fotoKeluar ? `<img src="${item.fotoKeluar}" class="foto-thumb" onclick="showFoto('${item.nama}', '${item.fotoKeluar}', 'Keluar', '${item.jamKeluar}', '${item.tanggal}')" title="Klik untuk memperbesar">` : ''}
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function filterData() {
+      const tanggal = document.getElementById('filterTanggal').value;
+      if (tanggal) {
+        loadAbsensi(tanggal);
+      }
+    }
+
+    function resetFilter() {
+      document.getElementById('filterTanggal').valueAsDate = new Date();
+      loadAbsensi();
+    }
+
+    function showFoto(nama, foto, jenis, jam, tanggal) {
+      document.getElementById('modalTitle').textContent = `Foto Absen ${jenis} - ${nama}`;
+      document.getElementById('modalImage').src = foto;
+      document.getElementById('modalInfo').innerHTML = `
+        <div style="color: #6B7280; margin-top: 15px;">
+          <div style="margin-bottom: 10px;"><strong>Tanggal:</strong> ${new Date(tanggal).toLocaleDateString('id-ID')}</div>
+          <div style="margin-bottom: 10px;"><strong>Jam ${jenis}:</strong> ${jam}</div>
+        </div>
+      `;
+      document.getElementById('fotoModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('fotoModal').classList.remove('active');
+    }
+
+    // Keyboard shortcut untuk menutup modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
